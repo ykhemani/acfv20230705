@@ -1,4 +1,9 @@
-# part A
+# Part A
+systemctl enable vault && \
+systemctl start vault && \
+systemctl status vault
+
+# Part B
 mkdir -p ~/venv && \
   cd ~/venv
 cat <<EOF > ~/venv/venv
@@ -10,7 +15,7 @@ export VAULT_UNSEAL=\$(cat ~/venv/vault-init.json | jq -r .unseal_keys_b64[])
 EOF
 . ~/venv/venv
 
-# Part B
+# Part C
 vault operator init \
   -format=json \
   -key-shares=1 \
@@ -18,10 +23,10 @@ vault operator init \
   | tee vault-init.json
 . ~/venv/venv
 
-# Part C
+# Part D
 vault operator unseal ${VAULT_UNSEAL}
 
-# Part D
+# Part E
 sudo mkdir -p /opt/vault/audit && \
   sudo chown vault:vault /opt/vault/audit && \
   vault audit enable file file_path=/opt/vault/audit/audit.log && \
