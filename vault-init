@@ -1,0 +1,30 @@
+# part A
+mkdir -p ~/venv && \
+  cd ~/venv
+cat <<EOF > ~/venv/venv
+export VAULT_ADDR=https://127.0.0.1:8200
+export VAULT_SKIP_VERIFY=true
+export VAULT_TOKEN=\$(cat ~/venv/vault-init.json | jq -r .root_token)
+export VAULT_UNSEAL=\$(cat ~/venv/vault-init.json | jq -r .unseal_keys_b64[])
+
+EOF
+. ~/venv/venv
+
+# Part B
+vault operator init \
+  -format=json \
+  -key-shares=1 \
+  -key-threshold=1 \
+  | tee vault-init.json
+. ~/venv/venv
+
+# Part C
+vault operator unseal ${VAULT_UNSEAL}
+
+# Part D
+sudo mkdir -p /opt/vault/audit && \
+  sudo chown vault:vault /opt/vault/audit && \
+  vault audit enable file file_path=/opt/vault/audit/audit.log && \
+  vault audit enable -path=raw file \
+  file_path=/opt/vault/audit/raw.log log_raw=true
+vault audit list -detailed
