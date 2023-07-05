@@ -4,7 +4,7 @@ ui = true
 # raft storage
 storage "raft" {
   path    = "/opt/vault/data"
-  node_id = "node_01"
+  node_id = "node_03"
 
  retry_join {
     leader_api_addr = "https://10.119.160.35:8200"
