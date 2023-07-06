@@ -1,0 +1,13 @@
+sudo mkdir -p /opt/vault/audit && \
+  sudo chown vault:vault /opt/vault/audit
+
+systemctl enable vault && \
+systemctl start vault && \
+systemctl status vault
+
+export VAULT_ADDR=https://azl-hsvlt-s3.carefirst.com:8200
+export VAULT_SKIP_VERIFY=true
+
+vault operator unseal
+
+vault operator raft join https://azl-hsvlt-s1.carefirst.com:8200
