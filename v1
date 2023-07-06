@@ -4,29 +4,38 @@ ui = true
 # raft storage
 storage "raft" {
   path    = "/opt/vault/data"
-  node_id = "node_01"
+  node_id = "azl-hsvlt-s1"
 
  retry_join {
-    leader_api_addr = "https://10.119.160.35:8200"
+    leader_api_addr = "https://azl-hsvlt-s1.carefirst.com:8200"
+    leader_ca_cert_file = "/opt/vault/tls/ca.pem"
+    tls_cert_file = "/opt/vault/tls/cert.pem"
+    tls_key_file = "/opt/vault/tls/cert-key.pem"
   }
 
   retry_join {
-    leader_api_addr = "https://10.119.160.36:8200"
+    leader_api_addr = "https://azl-hsvlt-s2.carefirst.com:8200"
+    leader_ca_cert_file = "/opt/vault/tls/ca.pem"
+    tls_cert_file = "/opt/vault/tls/cert.pem"
+    tls_key_file = "/opt/vault/tls/cert-key.pem"
   }
 
   retry_join {
-    leader_api_addr = "https://10.119.160.37:8200"
+    leader_api_addr = "https://azl-hsvlt-s3.carefirst.com:8200"
+    leader_ca_cert_file = "/opt/vault/tls/ca.pem"
+    tls_cert_file = "/opt/vault/tls/cert.pem"
+    tls_key_file = "/opt/vault/tls/cert-key.pem"
   }
 }
 
 listener "tcp" {
   address       = "0.0.0.0:8200"
-  tls_cert_file = "/opt/vault/tls/tls.crt"
-  tls_key_file  = "/opt/vault/tls/tls.key"
+  tls_cert_file = "/opt/vault/tls/cert.pem"
+  tls_key_file  = "/opt/vault/tls/cert-key.pem"
 }
 
-api_addr     = "https://10.119.160.35:8200"
-cluster_addr = "https://10.119.160.35:8201"
+api_addr     = "https://azl-hsvlt-s1.carefirst.com:8200"
+cluster_addr = "https://azl-hsvlt-s1.carefirst.com:8201"
 
 license_path = "/etc/vault.d/vault.hclic"
 EOF
