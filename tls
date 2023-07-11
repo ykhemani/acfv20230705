@@ -49,7 +49,7 @@ EOF
 
 # Create an extension and SAN file for the client certificate
 # Add any additional SANs necessary for the Vault nodes
-$ cat <<EOF > server_ext_config.txt
+cat <<EOF > server_ext_config.txt
 authorityKeyIdentifier = keyid,issuer
 basicConstraints       = CA:FALSE
 keyUsage               = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
@@ -64,9 +64,9 @@ DNS.4 = 10.119.170.5
 EOF
 
 # Generate the Certificate Signing Request
-$ openssl req -new -key cert-key.pem -out cert-csr.pem -config server_cert_config.txt
+openssl req -new -key cert-key.pem -out cert-csr.pem -config server_cert_config.txt
 
 # Generate the signed certificate valid for 1 year
-$ openssl x509 -req -in cert-csr.pem -out cert.pem \
--CA ca.pem -CAkey ca-key.pem -CAcreateserial \
--days 365 -sha512 -extfile server_ext_config.txt
+openssl x509 -req -in cert-csr.pem -out cert.pem \
+  -CA ca.pem -CAkey ca-key.pem -CAcreateserial \
+  -days 365 -sha512 -extfile server_ext_config.txt
