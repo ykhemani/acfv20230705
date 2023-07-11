@@ -44,7 +44,7 @@ countryName             = US
 stateOrProvinceName     = Maryland
 localityName            = Owings Mill
 organizationName        = CareFirst
-commonName              = vault.carefirst.com
+commonName              = hashvault.carefirst.com
 EOF
 
 # Create an extension and SAN file for the client certificate
@@ -60,6 +60,7 @@ subjectAltName         = @alt_names
 DNS.1 = azl-hsvlt-s1.carefirst.com
 DNS.2 = azl-hsvlt-s2.carefirst.com
 DNS.3 = azl-hsvlt-s3.carefirst.com
+DNS.4 = 10.119.170.5
 EOF
 
 # Generate the Certificate Signing Request
