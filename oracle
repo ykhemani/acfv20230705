@@ -1,0 +1,24 @@
+# Install the Oracle Client Library v19.18.
+
+# on all Vault servers:
+mkdir -p /data/src /opt/oracle /opt/vault/plugins && cd /data/src
+
+wget https://download.oracle.com/otn_software/linux/instantclient/1919000/instantclient-basic-linux.x64-19.19.0.0.0dbru.zip
+
+unzip instantclient-basic-linux.x64-19.19.0.0.0dbru.zip
+
+mv instantclient_19_19 /opt/oracle/
+
+wget https://releases.hashicorp.com/vault-plugin-database-oracle/0.8.2/vault-plugin-database-oracle_0.8.2_linux_amd64.zip
+
+unzip vault-plugin-database-oracle_0.8.2_linux_amd64.zip
+
+mv vault-plugin-database-oracle /opt/vault/plugins/
+
+echo 'plugin_directory = "/opt/vault/plugins"' \
+  >> /etc/vault.d/vault.hcl
+
+echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_19_19" >> /etc/vault.d/vault.env
+
+# on one server:
+vault write sys/plugins/catalog/database/oracle-database-plugin sha256=a218646db38a6a3885f850f3b91bc6a621f46dddae11ac1c6edca70e56cc1433 command=vault-plugin-database-oracle
