@@ -26,5 +26,12 @@ ldconfig
 
 ldd /opt/vault/plugins/vault-plugin-database-oracle
 
+# restart and unseal vault
+systemctl restart vault
+
+. ./venv/venv
+
+vault operator unseal $VAULT_UNSEAL
+
 # on one server:
 vault write sys/plugins/catalog/database/oracle-database-plugin sha256=a218646db38a6a3885f850f3b91bc6a621f46dddae11ac1c6edca70e56cc1433 command=vault-plugin-database-oracle
