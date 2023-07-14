@@ -20,5 +20,11 @@ echo 'plugin_directory = "/opt/vault/plugins"' \
 
 echo "LD_LIBRARY_PATH=/opt/oracle/instantclient_19_19" >> /etc/vault.d/vault.env
 
+echo /opt/oracle/instantclient_19_19 > /etc/ld.so.conf.d/oracle-instantclient.conf
+
+ldconfig
+
+ldd /opt/vault/plugins/vault-plugin-database-oracle
+
 # on one server:
 vault write sys/plugins/catalog/database/oracle-database-plugin sha256=a218646db38a6a3885f850f3b91bc6a621f46dddae11ac1c6edca70e56cc1433 command=vault-plugin-database-oracle
