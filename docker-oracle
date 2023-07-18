@@ -1,0 +1,54 @@
+# install docker per https://docs.docker.com/engine/install/rhel/
+
+# remove any old docker packages
+sudo yum remove docker \
+  docker-client \
+  docker-client-latest \
+  docker-common \
+  docker-latest \
+  docker-latest-logrotate \
+  docker-logrotate \
+  docker-engine \
+  podman \
+  runc
+
+# install yum-utils
+sudo yum install -y yum-utils
+
+# add the docker repo
+sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo
+
+# install docker
+sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# enable and start docker
+systemctl enable docker && \
+  systemctl start docker
+
+# run oracle in a docker container -- FOR TESTING USE ONLY!!
+
+# pull the oracle container image
+docker pull gvenzl/oracle-xe
+
+# create a container to run oracle
+docker run -d --name oracle-xe -p 1521:1521 -e ORACLE_PASSWORD=rootpassword gvenzl/oracle-xe
+
+# watch logs, wait for container to finish starting. takes a few seconds
+docker logs -f oracle-xe
+
+# log into the container
+docker exec -it oracle-xe /bin/bash
+
+# Create a sql file on the container to be executed to create a database user named vault with password vaultpasswd and dba privileges to create new users.
+tee create_user.sql <<EOF
+alter session set container=XEPDB1;
+CREATE USER vault IDENTIFIED BY vaultpasswd;
+ALTER USER vault DEFAULT TABLESPACE USERS QUOTA UNLIMITED ON USERS;
+GRANT CREATE SESSION, RESOURCE , UNLIMITED TABLESPACE, DBA TO vault;
+exit;
+EOF
+
+# Run the sql file as sys user. This will create the database user vault on the PDB (Pluggable database) XEPDB1.
+sqlplus sys/rootpassword as sysdba @create_user.sql
+
+# exit the container
