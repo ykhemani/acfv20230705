@@ -12,6 +12,14 @@ vault write auth/approle/role/demo-role \
   secret_id_num_uses=0 \
   token_policies=demo-policy
 
+# get role id
+vault read -format=json auth/approle/role/demo-role/role-id | jq -r '.data.role_id'
+
+# get secret id
+vault write -f -format=json auth/approle/role/demo-role/secret-id | jq -r '.data.secret_id'
+
+# push role id and secret id to the client
+
 # create policy for use by vault-agent auth role
 vault policy write demo-policy - <<EOF
 
