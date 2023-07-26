@@ -1,0 +1,116 @@
+################################################################################
+# on a vault server:
+# enable approle auth
+vault auth enable -path=approle approle
+
+# create role for use by vault-agent
+vault write auth/approle/role/demo-role \
+  secret_id_ttl=0 \
+  token_num_uses=0 \
+  token_ttl=720h \
+  token_max_ttl=720h \
+  secret_id_num_uses=0 \
+  token_policies=demo-policy
+
+# create policy for use by vault-agent auth role
+vault policy write demo-policy - <<EOF
+
+# dynamic database credentials
+path "database/creds/my-role" {
+  capabilities = ["read","list"]
+}
+
+# token management
+path "auth/token/renew" {
+  capabilities = ["update"]
+}
+
+path "auth/token/renew-self" {
+  capabilities = ["update"]
+}
+
+EOF
+
+# list policies
+vault policy list
+
+# read demo-policy policy
+vault policy read demo-policy
+
+################################################################################
+# on the client:
+# install epel, jq, yum-utils
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum -y install jq yum-utils
+
+# add hashicorp repo
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo
+
+# install vault-enterprise
+sudo yum install -y vault-enterprise
+
+# create directory for vault agent and app
+mkdir -p /data/vault-agent /data/app && cd /data/vault-agent
+
+# create vault agent config
+cat <<EOF > /data/vault-agent/vault.hcl
+exit_after_auth = false
+
+pid_file = "/data/vault-agent/pidfile"
+
+vault {
+  # use the load balancer address here
+  address = "https://azl-hsvlt-s1.carefirst.com:8200"
+  ca_cert = "/opt/vault/tls/ca.pem"
+}
+
+auto_auth {
+  method "approle" {
+    mount_path = "auth/approle"
+    config = {
+      type                = "approle"
+      role                = "demo-role"
+      role_id_file_path   = "/data/vault-agent/role_id"
+      secret_id_file_path = "/data/vault-agent/secret_id"
+      bind_secret_id      = false
+
+      remove_secret_id_file_after_reading = false
+    }
+  }
+
+  sink "file" {
+    config = {
+      path = "/data/vault-agent/vault-token"
+    }
+  }
+
+}
+
+cache {
+  use_auto_auth_token = true
+}
+
+listener "tcp" {
+  address = "127.0.0.1:8100"
+  tls_disable = true
+}
+
+template_config {
+  static_secret_render_interval = "15s"
+}
+
+template {
+  source      = "/data/app/config.ini.tpl"
+  destination = "/data/app/config.ini"
+  perms       = 0644
+  #command     =
+}
+EOF
+
+# create template
+cat <<EOF > /data/app/config.ini.tpl
+{{ with secret "database/creds/my-role" }}
+database_user = "{{ .Data.username }}"
+database_password = "{{ .Data.password }}"
+EOF
+
