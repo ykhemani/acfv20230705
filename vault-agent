@@ -122,6 +122,9 @@ cat <<EOF > /data/app/config.ini.tpl
 database_user = "{{ .Data.username }}"
 database_password = "{{ .Data.password }}"
 {{ end }}
+{{ with secret "kv/data/example-secret" }}
+api_key = "{{ .Data.data.api-key }}"
+{{ end }}
 EOF
 
 # run vault agent
