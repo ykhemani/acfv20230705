@@ -122,3 +122,5 @@ database_user = "{{ .Data.username }}"
 database_password = "{{ .Data.password }}"
 EOF
 
+# run vault agent
+vault agent -config /data/vault-agent/vault-agent.hcl
