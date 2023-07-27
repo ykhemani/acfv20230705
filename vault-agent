@@ -28,6 +28,11 @@ path "database/creds/my-role" {
   capabilities = ["read","list"]
 }
 
+# allow reading of static secrets
+path "kv/data/*" {
+  capabilities = ["read"]
+}
+
 # token management
 path "auth/token/renew" {
   capabilities = ["update"]
@@ -123,7 +128,7 @@ database_user = "{{ .Data.username }}"
 database_password = "{{ .Data.password }}"
 {{ end }}
 {{ with secret "kv/data/example-secret" }}
-api_key = "{{ .Data.data.api-key }}"
+api_key = "{{ .Data.data.api_key }}"
 {{ end }}
 EOF
 
