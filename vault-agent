@@ -61,7 +61,7 @@ sudo yum install -y vault-enterprise
 mkdir -p /data/vault-agent /data/app && cd /data/vault-agent
 
 # create vault agent config
-cat <<EOF > /data/vault-agent/vault.hcl
+cat <<EOF > /data/vault-agent/vault-agent.hcl
 exit_after_auth = false
 
 pid_file = "/data/vault-agent/pidfile"
