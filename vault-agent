@@ -132,5 +132,11 @@ api_key = "{{ .Data.data.api_key }}"
 {{ end }}
 EOF
 
+# enable the static (kv) secret engine.
+vault secrets enable -path=kv kv-v2
+
+# write a static secret
+vault kv put kv/example-secret api_key=$(uuidgen)
+
 # run vault agent
 vault agent -config /data/vault-agent/vault-agent.hcl
