@@ -70,6 +70,7 @@ vault {
   # use the load balancer address here
   address = "https://azl-hsvlt-s1.carefirst.com:8200"
   ca_cert = "/opt/vault/tls/ca.pem"
+  tls_skip_verify = true
 }
 
 auto_auth {
@@ -120,6 +121,7 @@ cat <<EOF > /data/app/config.ini.tpl
 {{ with secret "database/creds/my-role" }}
 database_user = "{{ .Data.username }}"
 database_password = "{{ .Data.password }}"
+{{ end }}
 EOF
 
 # run vault agent
