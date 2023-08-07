@@ -15,5 +15,34 @@ export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 # add CA Cert to keystore
 keytool -import -noprompt -trustcacerts -alias DemoCA -file  /data/certs/ca.pem -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
 
+# create policy
+vault policy write mysql-demo-policy - <<EOF
+# dynamic db creds
+path "database/creds/mysql-web-role" {
+  capabilities = ["read"]
+}
+EOF
+
+# create token
+vault token create -policy=mysql-demo-policy -ttl 15m
+
+# configure mysql database configuration
+vault write database/config/my-mysql-database \
+    plugin_name=mysql-database-plugin \
+    connection_url="{{username}}:{{password}}@tcp(127.0.0.1:3306)/" \
+    allowed_roles="mysql-demo-role" \
+    username="root" \
+    password="paSsw0rD"
+
+# configure mysql role
+vault write database/roles/mysql-demo-role \
+    db_name=my-mysql-database \
+    creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';" \
+    default_ttl="1h" \
+    max_ttl="24h"
+
+# use token
+export VAULT_TOKEN=<token value>
+
 # build and run
 mvn install && mvn package spring-boot:repackage && java -jar target/spring-cloud-vault-1.0.0-SNAPSHOT.jar
