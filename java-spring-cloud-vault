@@ -1,0 +1,19 @@
+# grab git repo
+mkdir -p /data/acfv && cd /data/acfv
+
+git clone https://github.com/ykhemani/tutorials.git
+
+cd /data/acfv/tutorials/spring-cloud-modules/spring-cloud-vault
+
+# install java 17 # openjdk full version "17.0.8+7-Ubuntu-122.04"
+sudo yum install java-17-openjdk
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+
+# install maven # 3.6.3
+# install mysql server 5.7
+
+# add CA Cert to keystore
+keytool -import -noprompt -trustcacerts -alias DemoCA -file  /data/certs/ca.pem -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit
+
+# build and run
+mvn install && mvn package spring-boot:repackage && java -jar target/spring-cloud-vault-1.0.0-SNAPSHOT.jar
